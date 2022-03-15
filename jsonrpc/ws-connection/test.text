@@ -10,20 +10,22 @@ import {
   parseConnectionError,
 } from "@walletconnect/jsonrpc-utils";
 
-// const WS =
-//   // @ts-ignore
-//   typeof global.WebSocket !== "undefined" ? global.WebSocket : require("ws");
-interface ResponseI extends Response {
-  webSocket: WebSocketI | null;
-}
+// interface WebSocketI extends WebSocket {
+//   accept(): void;
+//   onopen(): void;
+//   onerror(event: Event): void;
+//   onmessage(): void;
+//   close(): void;
+//   send(): void;
+// }
 
-interface WebSocketI extends WebSocket {
-  accept(): void;
-}
 
-class WS {
+class WebSocketCF {
+  ws: WebSocket | null;
+
   constructor(public address: string) {
     this.address = address;
+    this.ws = null;
   }
 
   async initAsClient() {
@@ -35,18 +37,24 @@ class WS {
 
     // If the WebSocket handshake completed successfully, then the
     // response has a `webSocket` property.
-    // @ts-ignore
-    const ws: WebSocketI | null = resp.webSocket;
+    const ws: WebSocket | null = resp.webSocket;
     
     if (!ws) {
       throw new Error("server didn't accept WebSocket");
     }
+    this.ws = ws;
     
     // Call accept() to indicate that you'll be handling the socket here
     // in JavaScript, as opposed to returning it on to a client.
+    ws.accept();
     return ws;
   }
 }
+
+const WS =
+  // @ts-ignore
+  typeof global.WebSocket !== "undefined" ? global.WebSocket : require("ws");
+
 export class WsConnection implements IJsonRpcConnection {
   public events = new EventEmitter();
 
@@ -132,12 +140,10 @@ export class WsConnection implements IJsonRpcConnection {
 
     return new Promise(async (resolve, reject) => {
       const opts = !isReactNative() ? { rejectUnauthorized: !isLocalhostUrl(url) } : undefined;
-      
-      // const socket: WebSocketI = new WS(url, [], opts);
-      // @ts-ignore
-      const ws = new WS(url);
+      // const socket: WebSocket = new WS(url, [], opts);
+      const ws = new WebSocketCF(url);
       const socket = await ws.initAsClient();
-      socket.accept();
+
       socket.onopen = () => {
         this.onOpen(socket);
         resolve(socket);
@@ -188,5 +194,3 @@ export class WsConnection implements IJsonRpcConnection {
 }
 
 export default WsConnection;
-
-

@@ -1,5 +1,5 @@
 {
-  "name": "@walletconnect/jsonrpc-ws-connection",
+  "name": "@walletconnect/jsonrpc-ws-connection-cf",
   "description": "WS Connection for JSON-RPC",
   "version": "1.0.0",
   "author": "WalletConnect <walletconnect.org>",

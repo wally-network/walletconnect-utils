@@ -27,21 +27,26 @@ class WS {
   }
 
   async initAsClient() {
+    console.log('The Address is:', this.address)
+    console.log('Before Fetch')
+
     const resp = await fetch(this.address, {
       headers: {
         Upgrade: "websocket",
       },
     });
+    
+    console.log('Running', resp)
 
     // If the WebSocket handshake completed successfully, then the
     // response has a `webSocket` property.
     // @ts-ignore
     const ws: WebSocketI | null = resp.webSocket;
-    
+    console.log('WebSocketI', ws)
     if (!ws) {
       throw new Error("server didn't accept WebSocket");
     }
-    
+    ws.accept();
     // Call accept() to indicate that you'll be handling the socket here
     // in JavaScript, as opposed to returning it on to a client.
     return ws;
